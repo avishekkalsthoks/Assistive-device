@@ -13,12 +13,12 @@ The system, seamlessly housed within a hat, consists of a client device (running
 The client-side application captures real-time video and interacts with the user through voice commands. It features two primary modes:
 
 * **Guidance Mode:**
-    * Captures video frames from a camera.
-    * Sends video frames to the remote server for object detection.
-    * Receives and provides audio feedback on detected objects.
-    * Uses an ultrasonic sensor to detect nearby obstacles and alerts the user with beeps.
+    * Captures video frames from a camera
+    * Sends video frames to the remote server for object detection
+    * Receives and provides audio feedback on detected objects
+    * Uses an ultrasonic sensor to detect nearby obstacles and alerts the user with beeps
 * **Chat Mode:**
-    * Utilizes OpenAI to engage in conversational interactions based on voice input.
+    * Utilizes OpenAI to engage in conversational interactions based on voice input
 
 The client listens for a wake word ("Hi siri") to activate and can be shut down with a "bye" command. It employs threading for concurrent operation and includes error handling and resource management.
 
@@ -27,27 +27,27 @@ The client listens for a wake word ("Hi siri") to activate and can be shut down 
 The server-side application processes video frames for object detection and integrates this information with GPS navigation updates.
 
 * **`main.py` (Server Main):**
-    * Sets up a server to receive video frames from multiple clients.
-    * Utilizes an object detection model (YOLOv8) to identify objects in the video streams.
-    * Combines object detection results with GPS navigation updates (provided by the Flask server).
-    * Sends the combined information back to the client as text.
-    * Manages multiple clients concurrently using threads.
-    * Runs a background Flask server (`gps_handler.py`) to handle GPS data.
+    * Sets up a server to receive video frames from multiple clients
+    * Utilizes an object detection model (YOLOv8) to identify objects in the video streams
+    * Combines object detection results with GPS navigation updates (provided by the Flask server)
+    * Sends the combined information back to the client as text
+    * Manages multiple clients concurrently using threads
+    * Runs a background Flask server (`gps_handler.py`) to handle GPS data
 
 * **`predictions.py` (Object Detection):**
-    * Contains functions for processing video frames using a YOLO model to detect specific objects.
-    * Identifies the closest detected object to the center of the frame.
-    * Determines the object's relative position (left, right, or ahead).
-    * Generates directional instructions for the client.
-    * Implements logic to avoid repetitive reporting of the same object based on time and a delay.
+    * Contains functions for processing video frames using a YOLO model to detect specific objects
+    * Identifies the closest detected object to the center of the frame
+    * Determines the object's relative position (left, right, or ahead)
+    * Generates directional instructions for the client
+    * Implements logic to avoid repetitive reporting of the same object based on time and a delay
 
 * **`gps_handler.py` (GPS Navigation Server):**
-    * Creates a Flask web server to provide GPS-based turn-by-turn navigation instructions.
-    * Receives the user's current latitude and longitude via POST requests to the `/location` endpoint (likely from a mobile application).
-    * Uses the Google Maps Directions API to calculate a route to a predefined destination.
-    * Determines the next navigation instruction based on the user's current location and the route steps, considering distance to turning points or the destination.
-    * Formats navigation instructions for clarity.
-    * Uses a thread lock for safe access to location data.
+    * Creates a Flask web server to provide GPS-based turn-by-turn navigation instructions
+    * Receives the user's current latitude and longitude via POST requests to the `/location` endpoint (likely from a mobile application)
+    * Uses the Google Maps Directions API to calculate a route to a predefined destination
+    * Determines the next navigation instruction based on the user's current location and the route steps, considering distance to turning points or the destination
+    * Formats navigation instructions for clarity
+    * Uses a thread lock for safe access to location data
 
 ## Network Setup
 
@@ -57,10 +57,10 @@ The Raspberry Pi (client) and the server need to be on the same network or acces
 
 This framework aims to provide visually impaired individuals with:
 
-* **Real-time obstacle detection:** Identifying and alerting the user to nearby obstacles.
-* **Object recognition:** Providing information about objects in the environment.
-* **Turn-by-turn GPS navigation:** Guiding the user to their destination.
-* **Voice interaction:** Enabling intuitive communication with the device for commands and information.
+* **Real-time obstacle detection:** Identifying and alerting the user to nearby obstacles
+* **Object recognition:** Providing information about objects in the environment
+* **Turn-by-turn GPS navigation:** Guiding the user to their destination
+* **Voice interaction:** Enabling intuitive communication with the device for commands and information
 
 ## Project Execution Requirements
 
@@ -109,8 +109,8 @@ This framework aims to provide visually impaired individuals with:
 
 **Other Essentials:**
 
-* Raspberry Pi and server must be on the same network or accessible via public IP.
-* Update IP addresses in the socket/client/server scripts as per your setup.
+* Raspberry Pi and server must be on the same network or accessible via public IP
+* Update IP addresses in the socket/client/server scripts as per your setup
 
 ## Authors
 
