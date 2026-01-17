@@ -1,6 +1,6 @@
 """
 GPIO Handler for Smart Vision Guide
-Ultrasonic Sensor, Buzzer, and Button Control for Raspberry Pi Zero 2W
+Ultrasonic Sensor and Buzzer Control for Raspberry Pi Zero 2W
 
 Note: This module uses lgpio which is designed for Raspberry Pi.
 On non-Pi systems, it will run in simulation mode.
@@ -21,15 +21,13 @@ from config.settings import (
     BUZZER_PIN, 
     ULTRASONIC_TRIG_PIN, 
     ULTRASONIC_ECHO_PIN,
-    BUTTON_MAIN_PIN,
-    BUTTON_GUIDE_PIN,
     OBSTACLE_DISTANCE_THRESHOLD,
     OBSTACLE_CRITICAL_DISTANCE
 )
 
 
 class GPIOHandler:
-    """Handles GPIO operations for ultrasonic sensor, buzzer, and buttons."""
+    """Handles GPIO operations for ultrasonic sensor and buzzer."""
     
     def __init__(self):
         """Initialize GPIO handler."""
@@ -37,9 +35,7 @@ class GPIOHandler:
         self.initialized = False
         self.running = False
         self.distance_callback = None
-        self.button_callback = None
         self.monitor_thread = None
-        self.button_thread = None
         self.last_distance = None
     
     def initialize(self):
@@ -58,10 +54,6 @@ class GPIOHandler:
             # Setup ultrasonic sensor
             lgpio.gpio_claim_output(self.gpio_handle, ULTRASONIC_TRIG_PIN)
             lgpio.gpio_claim_input(self.gpio_handle, ULTRASONIC_ECHO_PIN)
-            
-            # Setup buttons as inputs with pull-up
-            lgpio.gpio_claim_input(self.gpio_handle, BUTTON_MAIN_PIN, lgpio.SET_PULL_UP)
-            lgpio.gpio_claim_input(self.gpio_handle, BUTTON_GUIDE_PIN, lgpio.SET_PULL_UP)
             
             # Ensure buzzer is off
             lgpio.gpio_write(self.gpio_handle, BUZZER_PIN, 0)
@@ -124,34 +116,6 @@ class GPIOHandler:
             print(f"Distance measurement error: {e}")
             return None
     
-    def read_button(self, pin):
-        """
-        Read button state.
-        
-        Args:
-            pin: GPIO pin number
-        
-        Returns:
-            bool: True if button is pressed (active low)
-        """
-        if not GPIO_AVAILABLE or not self.initialized:
-            return False
-        
-        try:
-            # Buttons are active low (pressed = 0)
-            return lgpio.gpio_read(self.gpio_handle, pin) == 0
-        except Exception as e:
-            print(f"Button read error: {e}")
-            return False
-    
-    def is_main_button_pressed(self):
-        """Check if main button is pressed."""
-        return self.read_button(BUTTON_MAIN_PIN)
-    
-    def is_guide_button_pressed(self):
-        """Check if guide button is pressed."""
-        return self.read_button(BUTTON_GUIDE_PIN)
-    
     def beep(self, duration=0.1):
         """
         Sound the buzzer.
@@ -182,7 +146,7 @@ class GPIOHandler:
             time.sleep(off_time)
     
     def beep_confirm(self):
-        """Single short beep to confirm button press."""
+        """Single short beep to confirm action."""
         self.beep(0.05)
     
     def beep_error(self):
@@ -235,55 +199,6 @@ class GPIOHandler:
                 self.distance_callback(distance)
             
             time.sleep(interval)
-    
-    def start_button_monitoring(self, callback):
-        """
-        Start monitoring buttons for presses.
-        
-        Args:
-            callback: Function to call with button name ("main" or "guide")
-        """
-        self.button_callback = callback
-        self.running = True
-        
-        self.button_thread = threading.Thread(target=self._button_loop)
-        self.button_thread.daemon = True
-        self.button_thread.start()
-        
-        print("Button monitoring started")
-    
-    def _button_loop(self):
-        """Button monitoring loop with debounce."""
-        last_main_state = False
-        last_guide_state = False
-        last_main_press = 0
-        last_guide_press = 0
-        debounce_time = 0.3  # 300ms debounce
-        
-        while self.running:
-            current_time = time.time()
-            
-            # Check main button
-            main_pressed = self.is_main_button_pressed()
-            if main_pressed and not last_main_state:
-                if current_time - last_main_press > debounce_time:
-                    self.beep_confirm()
-                    if self.button_callback:
-                        self.button_callback("main")
-                    last_main_press = current_time
-            last_main_state = main_pressed
-            
-            # Check guide button
-            guide_pressed = self.is_guide_button_pressed()
-            if guide_pressed and not last_guide_state:
-                if current_time - last_guide_press > debounce_time:
-                    self.beep_confirm()
-                    if self.button_callback:
-                        self.button_callback("guide")
-                    last_guide_press = current_time
-            last_guide_state = guide_pressed
-            
-            time.sleep(0.05)  # 50ms polling interval
     
     def stop_monitoring(self):
         """Stop all monitoring."""

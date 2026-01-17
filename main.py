@@ -7,7 +7,7 @@ Optimized for Raspberry Pi Zero 2W with Google AI Studio (Gemini API)
 Features:
 - Object Detection for navigation assistance
 - OCR for reading text from signs, labels, etc.
-- Voice-controlled AND button-controlled operation
+- Voice-controlled operation
 - Ultrasonic obstacle detection
 - Text-to-speech output
 
@@ -22,13 +22,6 @@ Voice Commands:
     "Describe" - Get scene description
     "Chat" - Enter conversation mode
     "System exit" - Shutdown
-
-Button Controls:
-    Main Button (GPIO 5):
-        - Single press: Describe scene / Read text
-        - Double press: Toggle between describe and OCR modes
-    Guide Button (GPIO 6):
-        - Single press: Toggle guidance mode ON/OFF
 """
 
 import threading
@@ -62,7 +55,6 @@ class SmartVisionGuide:
         self.system_active = False
         self.guidance_active = False
         self.chat_active = False
-        self.current_mode = "describe"  # "describe" or "ocr"
         
         # Threading events
         self.events = {
@@ -81,10 +73,6 @@ class SmartVisionGuide:
         # Worker threads
         self.guidance_thread = None
         self.ultrasonic_thread = None
-        
-        # Button timing
-        self.last_main_press = 0
-        self.main_press_count = 0
         
         # Setup signal handlers
         signal.signal(signal.SIGINT, self._signal_handler)
@@ -113,12 +101,12 @@ class SmartVisionGuide:
         else:
             print("        GPIO simulation mode")
         
-        # Initialize voice (optional)
+        # Initialize voice
         print("  [3/4] Initializing microphone...")
         if self.voice.initialize_microphone():
             print("        Microphone OK")
         else:
-            print("        Microphone not available - using buttons only")
+            print("        Microphone FAILED - checking connection")
         
         # Check Gemini
         print("  [4/4] Checking Gemini API...")
@@ -129,51 +117,6 @@ class SmartVisionGuide:
         
         print("\nInitialization complete!")
         print("-" * 50)
-    
-    def handle_button_press(self, button):
-        """
-        Handle button press events.
-        
-        Args:
-            button: "main" or "guide"
-        """
-        current_time = time.time()
-        
-        if button == "main":
-            # Check for double press (within 500ms)
-            if current_time - self.last_main_press < 0.5:
-                self.main_press_count += 1
-            else:
-                self.main_press_count = 1
-            
-            self.last_main_press = current_time
-            
-            # Wait a bit to check for double press
-            threading.Timer(0.5, self._process_main_button).start()
-        
-        elif button == "guide":
-            # Toggle guidance mode
-            if self.guidance_active:
-                self.stop_guidance()
-            else:
-                self.system_active = True
-                self.start_guidance()
-    
-    def _process_main_button(self):
-        """Process main button after double-press check."""
-        if self.main_press_count >= 2:
-            # Double press - toggle mode
-            self.current_mode = "ocr" if self.current_mode == "describe" else "describe"
-            speak(f"Switched to {self.current_mode} mode")
-            self.main_press_count = 0
-        elif self.main_press_count == 1:
-            # Single press - perform action based on current mode
-            self.system_active = True
-            if self.current_mode == "describe":
-                self.describe_scene()
-            else:
-                self.read_text()
-            self.main_press_count = 0
     
     def handle_voice_command(self, command_type, transcript):
         """
@@ -302,7 +245,7 @@ class SmartVisionGuide:
     
     def read_text(self):
         """Perform OCR on current view."""
-        speak(MESSAGES["reading_text"])
+        speak("Reading text...")
         
         frame = self.camera.capture_frame()
         
@@ -315,7 +258,7 @@ class SmartVisionGuide:
     
     def describe_scene(self):
         """Get complete scene description."""
-        speak(MESSAGES["analyzing"])
+        speak("Analyzing scene...")
         
         frame = self.camera.capture_frame()
         
@@ -358,19 +301,14 @@ class SmartVisionGuide:
         # Startup announcement
         speak(MESSAGES["startup"])
         
-        # Start button monitoring
-        self.gpio.start_button_monitoring(self.handle_button_press)
-        
-        # Start voice recognition (optional, if microphone available)
+        # Start voice recognition
         try:
             self.voice.start_continuous_listening(self.handle_voice_command)
         except Exception as e:
             print(f"Voice recognition not available: {e}")
+            speak("Voice recognition failed. Check microphone.")
         
-        print("\nSystem ready!")
-        print("  - Press Main button (GPIO 5) for scene description")
-        print("  - Press Guide button (GPIO 6) to toggle guidance")
-        print("  - Or say 'Hi Siri' to activate voice control")
+        print("\nSystem ready! Say 'Hi Siri' to activate.")
         print("-" * 50)
         
         try:

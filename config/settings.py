@@ -37,10 +37,6 @@ BUZZER_PIN = 17
 ULTRASONIC_TRIG_PIN = 23
 ULTRASONIC_ECHO_PIN = 24
 
-# Button pins (optional button input)
-BUTTON_MAIN_PIN = 5      # Main action button
-BUTTON_GUIDE_PIN = 6     # Guidance mode toggle
-
 # =============================================================================
 # ULTRASONIC SENSOR CONFIGURATION
 # =============================================================================
@@ -107,8 +103,8 @@ AUDIO_TEMP_FILE = "/tmp/tts_output.mp3"
 # SYSTEM MESSAGES
 # =============================================================================
 MESSAGES = {
-    "startup": "Smart Vision Guide ready. Press the main button or say 'Hi Siri' to begin.",
-    "activated": "System activated. Press main button for scene description, or say 'guide me' for navigation.",
+    "startup": "Smart Vision Guide ready. Say 'Hi Siri' to begin.",
+    "activated": "System activated. Say 'guide me' for navigation, or 'describe' for scene description.",
     "guidance_start": "Guidance mode started. I'll help you navigate.",
     "guidance_stop": "Guidance paused.",
     "chat_start": "Chat mode. Ask me anything. Say 'exit chat' when done.",
