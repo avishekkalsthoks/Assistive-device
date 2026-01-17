@@ -1,0 +1,23 @@
+# Smart Vision Guide - Raspberry Pi Zero 2W
+# Requirements for Google AI Studio (Gemini API) based assistive device
+
+# Google AI
+google-generativeai>=0.8.0
+
+# Camera and Image Processing
+opencv-python-headless>=4.8.0
+Pillow>=10.0.0
+
+# Text-to-Speech
+gTTS>=2.5.0
+
+# Voice Recognition
+SpeechRecognition>=3.10.0
+pyaudio>=0.2.14
+
+# GPIO (for Raspberry Pi)
+# lgpio>=0.2.2.0  # Uncomment on Raspberry Pi
+
+# Utilities
+requests>=2.31.0
+python-dotenv>=1.0.0
