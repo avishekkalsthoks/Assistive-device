@@ -1,3 +1,167 @@
+# Smart Vision Guide — Clean Setup Guide (Raspberry Pi Zero 2W)
+
+This guide provides a concise, tested set of commands to prepare a Raspberry Pi Zero 2W for the Smart Vision Guide (online OpenRouter-based operation). It focuses on a reproducible, minimal software install (no offline modes). Follow each step on the Pi via SSH.
+
+Prerequisites
+- Raspberry Pi Zero 2W
+- MicroSD card (16GB+), power supply, Pi Camera (CSI) and USB microphone or USB audio adapter
+- Network access (Wi‑Fi)
+
+Quick overview
+1. Flash OS and enable SSH/Wi‑Fi
+2. Update system and install apt packages (OpenCV via apt, audio utils)
+3. Clone repo, create Python venv and install pip deps
+4. Create `.env` with `OPENROUTER_API_KEY`
+5. Enable camera and test camera/audio
+6. (Optional) Enable systemd auto-start
+
+Step 0 — Prepare the SD card (headless)
+- Use Raspberry Pi Imager and choose "Raspberry Pi OS (Legacy) Lite" or similar.
+- In the Imager advanced options (Ctrl+Shift+X) set hostname (`smartvision`), enable SSH, and configure Wi‑Fi credentials.
+
+Step 1 — First boot and SSH
+1. Insert SD card, power the Pi. Wait ~2 minutes.
+2. From your laptop: `ssh pi@smartvision.local` (or `ssh pi@<PI_IP>`).
+
+Step 2 — System update and required apt packages
+Run the following on the Pi (copy-paste):
+
+```bash
+sudo apt update && sudo apt upgrade -y
+
+# Core tools and recommended packages
+sudo apt install -y git python3-venv python3-pip python3-opencv v4l-utils \
+  build-essential pkg-config libatlas-base-dev libjpeg-dev libtiff5-dev \
+  portaudio19-dev python3-pyaudio ffmpeg mpg123 haveged
+
+# Optional (Bluetooth audio):
+sudo apt install -y pulseaudio pulseaudio-module-bluetooth bluez bluez-tools
+```
+
+Notes:
+- We install `python3-opencv` and `python3-pyaudio` from apt to avoid heavy pip builds on Pi Zero 2W.
+- `mpg123` is used for MP3 playback by the TTS handler.
+
+Step 3 — Clone the repository
+
+```bash
+cd /home/pi
+git clone https://github.com/avishekkalsthoks/Assistive-device.git Smart-Vision-Guide
+cd Smart-Vision-Guide
+```
+
+Step 4 — Python virtual environment and pip packages
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+
+# Install project requirements (we rely on apt for OpenCV/pyaudio)
+pip install -r requirements.txt
+
+# Ensure HTTP/env helpers are present
+pip install requests python-dotenv pillow
+```
+
+Step 5 — Create `.env` and set OpenRouter key
+1. Copy the template and edit the key:
+
+```bash
+cp .env.example .env
+nano .env
+# Set OPENROUTER_API_KEY=your_openrouter_key_here
+```
+
+Security: Never commit `.env`. It is in `.gitignore`.
+
+Step 6 — Camera and audio quick tests
+
+# Camera test (Python/OpenCV)
+```bash
+source venv/bin/activate
+python3 - <<'PY'
+import cv2
+cap = cv2.VideoCapture(0)
+print('camera open:', cap.isOpened())
+if cap.isOpened():
+    ret, frame = cap.read()
+    print('frame ok:', ret)
+    cap.release()
+PY
+```
+
+# Audio/TTS test (generate a small TTS file and play)
+```bash
+python3 - <<'PY'
+from gtts import gTTS
+fn='/tmp/tts_test.mp3'
+t= gTTS('Hello from Smart Vision Guide', lang='en')
+t.save(fn)
+print('saved', fn)
+PY
+mpg123 -q /tmp/tts_test.mp3 && echo 'played'
+```
+
+If the camera test prints `camera open: True` and `frame ok: True`, camera access is working. If audio playback fails, ensure `mpg123` is installed and your audio device is configured.
+
+Step 7 — Enable camera (non-interactive)
+```bash
+sudo raspi-config nonint do_camera 1 || true
+```
+
+Step 8 — Systemd service (auto-start on boot)
+Create the service file (run as root or with sudo):
+
+```bash
+sudo tee /etc/systemd/system/smart-vision.service > /dev/null <<'EOF'
+[Unit]
+Description=Smart Vision Guide
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Smart-Vision-Guide
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/pi/Smart-Vision-Guide/venv/bin/python /home/pi/Smart-Vision-Guide/main.py
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable smart-vision
+sudo systemctl start smart-vision
+sudo journalctl -u smart-vision -f
+```
+
+Step 9 — Runtime tuning for Pi Zero 2W
+- If network calls are slow or you hit timeouts, reduce image size in `config/settings.py`:
+
+```py
+CAMERA_WIDTH = 320
+CAMERA_HEIGHT = 240
+JPEG_QUALITY = 50
+CAPTURE_INTERVAL = 4.0
+```
+
+Step 10 — Troubleshooting
+- Camera not opening: ensure ribbon cable seating, `sudo raspi-config` camera enabled, and `python3-opencv` installed.
+- Audio not playing: run `aplay -l` or `mpg123 --version` and verify device. For USB audio adapters, you may need to set ALSA defaults in `~/.asoundrc`.
+- OpenRouter errors: check `.env` has `OPENROUTER_API_KEY` and check network connectivity. Inspect logs with `journalctl -u smart-vision -f`.
+
+Security & housekeeping
+- Keep `.env` local and out of version control. If your API key was exposed, rotate it immediately via the OpenRouter dashboard.
+- Use `sudo journalctl -u smart-vision -b` to collect logs for debugging.
+
+If you want, I can now:
+- Update `setup_pi.sh` to implement this exact bootstrap script and remove any offline-only installs, or
+- Add a `scripts/setup_env.sh` that creates `.env` from `.env.example` safely on the Pi.
+
+End of guide.
 # Complete Setup Guide: Smart Vision Guide on Raspberry Pi Zero 2W
 
 This guide covers everything from flashing the OS to running the project.
