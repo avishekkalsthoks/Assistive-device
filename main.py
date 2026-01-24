@@ -29,6 +29,7 @@ import time
 import signal
 import sys
 import os
+import logging
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -38,7 +39,7 @@ from handlers.audio_handler import get_audio_handler, speak
 from handlers.camera_handler import get_camera_handler
 from handlers.gemini_handler import get_gemini_handler
 from handlers.voice_handler import get_voice_handler
-from handlers.gpio_handler import get_gpio_handler
+
 
 
 class SmartVisionGuide:
@@ -68,11 +69,11 @@ class SmartVisionGuide:
         self.camera = get_camera_handler()
         self.gemini = get_gemini_handler()
         self.voice = get_voice_handler()
-        self.gpio = get_gpio_handler()
+
         
         # Worker threads
         self.guidance_thread = None
-        self.ultrasonic_thread = None
+
         
         # Setup signal handlers
         signal.signal(signal.SIGINT, self._signal_handler)
@@ -88,28 +89,23 @@ class SmartVisionGuide:
         print("\nInitializing components...")
         
         # Test camera
-        print("  [1/4] Testing camera...")
+        print("  [1/3] Testing camera...")
         if self.camera.test_camera():
             print("        Camera OK")
         else:
             print("        Camera FAILED - check connection")
         
-        # Initialize GPIO
-        print("  [2/4] Initializing GPIO...")
-        if self.gpio.initialize():
-            print("        GPIO OK")
-        else:
-            print("        GPIO simulation mode")
+
         
         # Initialize voice
-        print("  [3/4] Initializing microphone...")
+        print("  [2/3] Initializing microphone...")
         if self.voice.initialize_microphone():
             print("        Microphone OK")
         else:
             print("        Microphone FAILED - checking connection")
         
         # Check Gemini
-        print("  [4/4] Checking Gemini API...")
+        print("  [3/3] Checking Gemini API...")
         if self.gemini.initialized:
             print("        Gemini API OK")
         else:
@@ -179,10 +175,7 @@ class SmartVisionGuide:
         self.guidance_thread.daemon = True
         self.guidance_thread.start()
         
-        # Start ultrasonic monitoring
-        self.ultrasonic_thread = threading.Thread(target=self._ultrasonic_loop)
-        self.ultrasonic_thread.daemon = True
-        self.ultrasonic_thread.start()
+
     
     def stop_guidance(self):
         """Stop navigation guidance mode."""
@@ -222,26 +215,7 @@ class SmartVisionGuide:
         
         print("Guidance thread stopped")
     
-    def _ultrasonic_loop(self):
-        """Background loop for ultrasonic obstacle detection."""
-        print("Ultrasonic thread started")
-        last_warning_time = 0
-        
-        while self.events['running'].is_set() and self.events['guidance'].is_set():
-            distance = self.gpio.measure_distance()
-            
-            if distance is not None:
-                # Beep based on distance
-                self.gpio.alert_by_distance(distance)
-                
-                # Voice warning for very close obstacles (not too frequent)
-                if distance < 20 and (time.time() - last_warning_time) > 3:
-                    speak(MESSAGES["obstacle_warning"], block=False)
-                    last_warning_time = time.time()
-            
-            time.sleep(0.2)  # 5 Hz measurement rate
-        
-        print("Ultrasonic thread stopped")
+
     
     def read_text(self):
         """Perform OCR on current view."""
@@ -337,14 +311,14 @@ class SmartVisionGuide:
         # Stop audio
         self.audio.stop()
         
-        # Clean up GPIO
-        self.gpio.cleanup()
+
         
         # Wait for threads to finish
         time.sleep(0.5)
         
         print("Shutdown complete. Goodbye!")
-        sys.exit(0)
+        # Do not call sys.exit here to allow graceful cleanup in tests/imports
+        return
 
 
 def main():

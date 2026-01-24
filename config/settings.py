@@ -16,6 +16,13 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "your-api-key-here")
 GEMINI_MODEL = "gemini-2.0-flash"  # Fast and cost-effective model
 
 # =============================================================================
+# OpenRouter (replacement for Gemini in this project)
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "your-openrouter-api-key-here")
+OPENROUTER_URL = os.environ.get("OPENROUTER_URL", "https://openrouter.ai/api/v1/chat/completions")
+OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "google/gemma-3-4b-it:free")
+# =============================================================================
+
+# =============================================================================
 # CAMERA CONFIGURATION
 # =============================================================================
 CAMERA_INDEX = 0  # Default camera
@@ -30,18 +37,7 @@ CAPTURE_INTERVAL = 3.0  # Seconds between captures in guidance mode
 OCR_DELAY = 0.5  # Delay before OCR capture after command
 SPEECH_RATE = 1.0  # TTS speech rate
 
-# =============================================================================
-# GPIO PINS (Raspberry Pi Zero 2W)
-# =============================================================================
-BUZZER_PIN = 17
-ULTRASONIC_TRIG_PIN = 23
-ULTRASONIC_ECHO_PIN = 24
 
-# =============================================================================
-# ULTRASONIC SENSOR CONFIGURATION
-# =============================================================================
-OBSTACLE_DISTANCE_THRESHOLD = 50  # cm - trigger warning below this
-OBSTACLE_CRITICAL_DISTANCE = 20   # cm - critical warning
 
 # =============================================================================
 # VOICE COMMANDS

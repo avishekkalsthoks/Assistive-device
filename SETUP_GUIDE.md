@@ -70,6 +70,42 @@ Type:
 ssh pi@smartvision.local
 ```
 *(If prompted "Are you sure...", type `yes` and Enter)*
+ 
+### Full, copy-paste setup (one-shot)
+
+If you prefer a single sequence to run on a fresh Pi Zero 2W (will install apt packages, create venv, and install pip deps), run the following as a single script (paste and run):
+
+```bash
+#!/bin/bash
+set -e
+
+sudo apt update && sudo apt upgrade -y
+
+# Core packages
+sudo apt install -y git python3-pip python3-venv python3-opencv v4l-utils \
+    build-essential pkg-config libatlas-base-dev libjpeg-dev libtiff5-dev \
+    portaudio19-dev libasound2-dev libportaudiocpp0 ffmpeg mpg123 python3-pyaudio \
+    pulseaudio pulseaudio-module-bluetooth bluez bluez-tools haveged
+
+# Clone repo
+cd /home/$USER || exit 1
+git clone https://github.com/avishekkalsthoks/Assistive-device.git Smart-Vision-Guide
+cd Smart-Vision-Guide
+
+# Create venv and install pip deps
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+pip install requests python-dotenv pillow
+
+# Enable camera (non-interactive)
+sudo raspi-config nonint do_camera 1 || true
+
+echo "Setup complete. Remember to edit .env and set OPENROUTER_API_KEY"
+```
+
+Save the above as `bootstrap_pi.sh`, `chmod +x bootstrap_pi.sh`, then run `./bootstrap_pi.sh`.
 *(Enter the password you set, e.g., `password`)*
 
 **Troubleshooting:**
@@ -94,6 +130,8 @@ ssh pi@smartvision.local
     *   Positive (+) -> GPIO 17 (Physical Pin 11)
     *   Negative (-) -> GND (Physical Pin 9)
 4.  **Microphone:**
+
+If `pip install pyaudio` succeeds in your venv, you're good. If not, use the OS package and re-create the venv.
     *   Plug into the MicroUSB data port (using OTG adapter).
 
 ---
@@ -134,6 +172,71 @@ chmod +x setup_pi.sh
 ```
 *This will take 10-20 minutes. Grab a coffee!* ☕
 
+### Additional packages recommended for Raspberry Pi Zero 2W (software setup)
+
+
+The Pi Zero 2W is resource constrained. The steps below install lightweight system packages and optional components that improve reliability for an online-first setup.
+
+Run these before `setup_pi.sh` or after, as needed:
+
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Basic build & audio utils
+sudo apt install -y git build-essential pkg-config libatlas-base-dev libjpeg-dev libtiff5-dev \
+    portaudio19-dev libasound2-dev libportaudiocpp0 ffmpeg mpg123
+
+# Camera support and Python/OpenCV (prefer apt package on Pi Zero to avoid long pip builds)
+sudo apt install -y python3-opencv v4l-utils
+
+# Bluetooth audio (optional)
+sudo apt install -y pulseaudio pulseaudio-module-bluetooth bluez bluez-tools
+
+# Optional entropy daemon (helps TLS on headless Pi)
+sudo apt install -y haveged
+```
+
+Notes:
+- Using `python3-opencv` from apt avoids compiling OpenCV on the Pi Zero. If `requirements.txt` contains `opencv-python-headless`, prefer removing it from `pip install` on the Pi and use the apt package instead.
+- `mpg123` provides reliable MP3 playback for TTS output. `ffmpeg` can also be used for conversions.
+
+### Python environment & pip
+
+Create and activate a `venv`, then install Python requirements (adapt if you used apt OpenCV):
+
+```bash
+# create virtual env
+python3 -m venv venv
+source venv/bin/activate
+
+# If you installed python3-opencv from apt, remove or edit the requirements file to avoid opencv pip wheel
+pip install -r requirements.txt
+
+# Install extras for OpenRouter and image handling
+pip install requests python-dotenv pillow
+```
+
+### OpenRouter API key
+
+Create the `.env` file (we included a template `.env` in the repo). Set your OpenRouter key:
+
+```bash
+cp .env.example .env
+nano .env
+# set OPENROUTER_API_KEY=your-key-here
+```
+
+### Speech recognition prerequisites
+
+`SpeechRecognition` with `pyaudio` requires PortAudio headers (installed above). On Pi, if `pip install pyaudio` fails, install the OS package instead:
+
+```bash
+sudo apt install -y python3-pyaudio
+```
+
+<!-- Offline mode instructions removed per user request. This guide is focused on online OpenRouter/gTTS setup. -->
+
 ---
 
 ## Phase 6: Bluetooth Audio Setup
@@ -166,7 +269,7 @@ This needs to be done manually once to pair your headset.
     nano .env
     ```
     *   Delete the placeholder text.
-    *   Paste your Google Gemini API Key.
+    *   Paste your OpenRouter API Key (set `OPENROUTER_API_KEY=`).
     *   Press `Ctrl+X`, then `Y`, then `Enter` to save.
 
 2.  **Run the Project:**

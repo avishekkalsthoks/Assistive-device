@@ -60,8 +60,8 @@ Raspberry Pi Zero 2W GPIO:
 
 ## Quick Start
 
-### 1. Get Gemini API Key
-Visit [Google AI Studio](https://aistudio.google.com/app/apikey) and create a key.
+### 1. Get OpenRouter API Key
+Create or retrieve an API key from your OpenRouter account and keep it ready.
 
 ### 2. Setup (On Raspberry Pi)
 ```bash
@@ -74,7 +74,7 @@ chmod +x setup_pi.sh
 ### 3. Configure
 ```bash
 cp .env.example .env
-nano .env # Add your GEMINI_API_KEY
+nano .env # Add your OPENROUTER_API_KEY
 ```
 
 ### 4. Run

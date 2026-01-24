@@ -6,8 +6,10 @@ Text-to-Speech and Audio Playback
 import os
 import subprocess
 import threading
+import tempfile
+import shutil
 from gtts import gTTS
-from config.settings import TTS_LANGUAGE, TTS_SLOW, AUDIO_TEMP_FILE
+from config.settings import TTS_LANGUAGE, TTS_SLOW
 
 
 class AudioHandler:
@@ -47,15 +49,41 @@ class AudioHandler:
         try:
             # Generate speech
             tts = gTTS(text=text, lang=TTS_LANGUAGE, slow=TTS_SLOW)
-            tts.save(AUDIO_TEMP_FILE)
-            
-            if not os.path.exists(AUDIO_TEMP_FILE):
+
+            # Create a temporary file for audio in an OS-appropriate temp dir
+            tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3')
+            tmp_name = tmp.name
+            tmp.close()
+
+            tts.save(tmp_name)
+
+            if not os.path.exists(tmp_name):
                 print("Error: TTS file not created")
                 return
-            
-            # Play audio
+
+            # Choose available audio player
+            player = None
+            for cmd in ('mpg123', 'aplay', 'afplay', 'ffplay'):
+                if shutil.which(cmd):
+                    player = cmd
+                    break
+
+            if player is None:
+                print("No audio player found (mpg123/aplay/afplay/ffplay). Install one to enable TTS playback.")
+                return
+
+            play_cmd = []
+            if player == 'mpg123':
+                play_cmd = [player, '-q', tmp_name]
+            elif player == 'aplay':
+                play_cmd = [player, tmp_name]
+            elif player == 'afplay':
+                play_cmd = [player, tmp_name]
+            elif player == 'ffplay':
+                play_cmd = [player, '-nodisp', '-autoexit', '-loglevel', 'quiet', tmp_name]
+
             self.current_process = subprocess.Popen(
-                ['mpg123', '-q', AUDIO_TEMP_FILE],
+                play_cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE
             )
@@ -82,8 +110,8 @@ class AudioHandler:
             
             # Clean up temp file
             try:
-                if os.path.exists(AUDIO_TEMP_FILE):
-                    os.remove(AUDIO_TEMP_FILE)
+                if 'tmp_name' in locals() and os.path.exists(tmp_name):
+                    os.remove(tmp_name)
             except Exception:
                 pass
     
