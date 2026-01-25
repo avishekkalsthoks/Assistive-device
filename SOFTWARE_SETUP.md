@@ -9,7 +9,7 @@ This guide provides a clean, step-by-step software setup for the **Raspberry Pi 
 *   **Raspberry Pi OS 10 (Buster)** (Legacy/Oldstable)
 *   **Pi Camera Rev 1.3**
 *   **Active Internet Connection** (for API calls and installation)
-*   **Gemini API Key** (from Google AI Studio)
+*   **OpenRouter API Key**
 
 ---
 
@@ -86,9 +86,9 @@ pip install -r requirements.txt
     cp .env.example .env
     nano .env
     ```
-    Enter your **GEMINI_API_KEY** in the file:
+    Enter your **OPENROUTER_API_KEY** in the file:
     ```text
-    GEMINI_API_KEY=your_key_here
+    OPENROUTER_API_KEY=your_key_here
     ```
     Press `Ctrl+O`, `Enter`, then `Ctrl+X` to save and exit.
 
@@ -151,8 +151,7 @@ python main.py
 ```
 
 ### Voice Commands:
-*   **"Hi Siri"**: Activate the system
-*   **"Guide me"**: Start navigation mode
+*   **"Hello Vision"**: Activate the system
 *   **"Read text"**: Perform OCR on the current view
 *   **"Describe"**: Get a full scene description
 *   **"System exit"**: Shut down the app
