@@ -23,9 +23,7 @@ sudo apt-get install -y \
     mpg123 \
     portaudio19-dev \
     libasound2-dev \
-    libatlas-base-dev \
-    libopencv-dev \
-    python3-opencv
+    libatlas-base-dev
 
 # Create virtual environment
 echo ""

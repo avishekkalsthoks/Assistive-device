@@ -1,13 +1,13 @@
-# Smart Vision Guide - Raspberry Pi Zero 2W
-# Requirements for Google AI Studio (Gemini API) based assistive device
-
+# Core AI and Vision
+google-generativeai>=0.3.0
+opencv-python-headless>=4.8.0.0
 Pillow>=10.0.0
+
+# Audio and Voice
 gTTS>=2.5.0
 SpeechRecognition>=3.10.0
+PyAudio>=0.2.13
 
 # HTTP + env
 requests>=2.31.0
 python-dotenv>=1.0.0
-
-# NOTE: On Raspberry Pi prefer installing OpenCV and PortAudio from apt
-# (python3-opencv and python3-pyaudio) to avoid heavy pip builds on Pi Zero 2W.
