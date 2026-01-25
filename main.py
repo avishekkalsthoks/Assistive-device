@@ -5,10 +5,9 @@ Assistive Device for Visually Impaired People
 Optimized for Raspberry Pi Zero 2W with OpenRouter API
 
 Features:
-- Object Detection for navigation assistance
+- Scene Description
 - OCR for reading text from signs, labels, etc.
 - Voice-controlled operation
-- Ultrasonic obstacle detection
 - Text-to-speech output
 
 Usage:
@@ -16,8 +15,6 @@ Usage:
 
 Voice Commands:
     "Hello Vision" - Activate the system
-    "Guide me" - Start navigation mode
-    "Stop guidance" - Pause navigation
     "Read text" - Read visible text (OCR)
     "Describe" - Get scene description
     "Chat" - Enter conversation mode
@@ -54,13 +51,11 @@ class SmartVisionGuide:
         # System state
         self.running = False
         self.system_active = False
-        self.guidance_active = False
         self.chat_active = False
         
         # Threading events
         self.events = {
             'running': threading.Event(),
-            'guidance': threading.Event(),
             'chat': threading.Event(),
         }
         
@@ -72,7 +67,7 @@ class SmartVisionGuide:
 
         
         # Worker threads
-        self.guidance_thread = None
+        # No background worker threads required for basic mode
 
         
         # Setup signal handlers
@@ -135,13 +130,7 @@ class SmartVisionGuide:
             return
         
         # Handle each command type
-        if command_type == "guide":
-            self.start_guidance()
-        
-        elif command_type == "stop_guide":
-            self.stop_guidance()
-        
-        elif command_type == "read_text":
+        if command_type == "read_text":
             self.read_text()
         
         elif command_type == "describe":
@@ -161,59 +150,6 @@ class SmartVisionGuide:
         elif self.chat_active and command_type is None:
             self.handle_chat_input(transcript)
     
-    def start_guidance(self):
-        """Start navigation guidance mode."""
-        if self.events['guidance'].is_set():
-            return  # Already running
-        
-        speak(MESSAGES["guidance_start"])
-        self.events['guidance'].set()
-        self.guidance_active = True
-        
-        # Start guidance thread
-        self.guidance_thread = threading.Thread(target=self._guidance_loop)
-        self.guidance_thread.daemon = True
-        self.guidance_thread.start()
-        
-
-    
-    def stop_guidance(self):
-        """Stop navigation guidance mode."""
-        self.events['guidance'].clear()
-        self.guidance_active = False
-        speak(MESSAGES["guidance_stop"])
-    
-    def _guidance_loop(self):
-        """Background loop for navigation guidance."""
-        print("Guidance thread started")
-        
-        while self.events['running'].is_set() and self.events['guidance'].is_set():
-            start_time = time.time()
-            
-            # Capture frame
-            frame = self.camera.capture_frame()
-            
-            if frame is not None:
-                # Get navigation guidance from OpenRouter
-                result = self.vision.get_navigation_guidance(frame)
-                
-                # Skip generic responses
-                if result and "no obstacle" not in result.lower():
-                    print(f"Navigation: {result}")
-                    speak(result)
-            else:
-                print("Camera capture failed")
-            
-            # Maintain capture interval
-            elapsed = time.time() - start_time
-            sleep_time = max(CAPTURE_INTERVAL - elapsed, 0)
-            
-            # Sleep in small intervals to allow quick shutdown
-            sleep_end = time.time() + sleep_time
-            while time.time() < sleep_end and self.events['guidance'].is_set():
-                time.sleep(0.1)
-        
-        print("Guidance thread stopped")
     
 
     

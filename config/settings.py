@@ -28,7 +28,6 @@ JPEG_QUALITY = 70  # Balance between quality and upload speed
 # =============================================================================
 # TIMING CONFIGURATION
 # =============================================================================
-CAPTURE_INTERVAL = 3.0  # Seconds between captures in guidance mode
 OCR_DELAY = 0.5  # Delay before OCR capture after command
 SPEECH_RATE = 1.0  # TTS speech rate
 
@@ -40,8 +39,6 @@ SPEECH_RATE = 1.0  # TTS speech rate
 WAKE_WORD = "hello vision"
 COMMANDS = {
     "activate": ["hello vision", "hey assistant", "hello"],
-    "guide": ["guide me", "start guidance", "navigate", "help me walk"],
-    "stop_guide": ["stop guidance", "stop guiding", "pause"],
     "read_text": ["read text", "read this", "what does it say", "ocr"],
     "describe": ["describe", "what is around", "what do you see", "scene"],
     "exit": ["system exit", "shutdown", "goodbye", "bye"],
@@ -53,14 +50,6 @@ COMMANDS = {
 # PROMPTS FOR GEMINI API
 # =============================================================================
 PROMPTS = {
-    "navigation": """You are helping a visually impaired person navigate safely.
-Analyze this image and describe:
-1. Any obstacles or objects in their path (specify left, center, or right)
-2. Brief navigation advice
-
-Keep your response under 25 words, natural and suitable for text-to-speech.
-Example: "Chair on your left. Clear path ahead. Continue straight."
-Do not use special characters or formatting.""",
 
     "ocr": """Act as a text reading assistant for a blind person.
 Read all visible text in this image and organize it into logical, coherent sentences.
@@ -100,16 +89,13 @@ AUDIO_TEMP_FILE = "/tmp/tts_output.mp3"
 # =============================================================================
 MESSAGES = {
     "startup": "Smart Vision Guide ready. Say 'Hello Vision' to begin.",
-    "activated": "System activated. Say 'guide me' for navigation, or 'describe' for scene description.",
-    "guidance_start": "Guidance mode started. I'll help you navigate.",
-    "guidance_stop": "Guidance paused.",
+    "activated": "System activated. Say 'read text' or 'describe' for assistance.",
     "chat_start": "Chat mode. Ask me anything. Say 'exit chat' when done.",
     "chat_end": "Chat ended. Returning to standby.",
     "shutdown": "System shutting down. Goodbye.",
     "error_camera": "Camera error. Please check the connection.",
     "error_api": "Could not reach the server. Please check your internet connection.",
     "no_text": "No text detected in view.",
-    "obstacle_warning": "Warning! Obstacle very close ahead.",
     "button_pressed": "Button pressed.",
     "reading_text": "Reading text...",
     "analyzing": "Analyzing scene...",

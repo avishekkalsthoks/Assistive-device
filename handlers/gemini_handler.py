@@ -133,8 +133,6 @@ class VisionHandler:
             print(f"Chat error: {e}")
             return "Sorry, I couldn't process that question."
 
-    def get_navigation_guidance(self, frame):
-        return self.analyze_image(frame, "navigation")
     
     def read_text(self, frame):
         return self.analyze_image(frame, "ocr")
