@@ -67,20 +67,25 @@ Keep your response under 25 words, natural and suitable for text-to-speech.
 Example: "Chair on your left. Clear path ahead. Continue straight."
 Do not use special characters or formatting.""",
 
-    "ocr": """Read all visible text in this image.
-Provide a clear, natural reading as if speaking to a blind person.
-Include brief context about what the text is (sign, label, document, etc).
-If no text is visible, say "No text detected in view."
-Keep response concise and suitable for text-to-speech.""",
+    "ocr": """Act as a text reading assistant for a blind person.
+Read all visible text in this image and organize it into logical, coherent sentences.
+1. First, identify what type of text this is (e.g., "This is a street sign", "This is a menu", "This is a product label", "This is a document")
+2. Then read the text in a natural, organized way - don't just list random words, combine them into meaningful sentences
+3. If text appears fragmented or scattered, arrange it logically based on context
+4. If no text is visible, say "No text detected in view"
 
-    "describe": """Provide a complete scene description for a visually impaired person.
-Include:
-1. Main objects and their positions
-2. Any people present (just count and positions, no identification)
-3. Environment description (indoor/outdoor, lighting)
-4. Navigation advice
+Keep the response clear and concise for text-to-speech. Avoid special characters or formatting.
+Example: "This is a store sign. It says 'Fresh Bakery, Open Daily 7 AM to 9 PM'." """,
 
-Keep response under 50 words, natural for text-to-speech.""",
+    "describe": """Act as a spatial awareness assistant for a blind person.
+Describe the scene in 3 to 4 concise sentences:
+1. Identify the general environment (e.g., "You are in a living room", "You are on a sidewalk")
+2. Locate key objects or obstacles relative to the user's position using clock-face directions (e.g., "A table is directly in front of you at 12 o'clock", "A doorway is at your 2 o'clock", "A chair is on your left at 9 o'clock")
+3. Mention any people present and their positions using the same clock-face system
+4. Specifically warn about floor-level hazards like cables, bags, steps, or uneven surfaces
+
+Focus ONLY on facts needed for safe navigation. Avoid visual adjectives like "beautiful", "bright", or "colorful".
+Keep response under 50 words, natural for text-to-speech. No special characters or formatting.""",
 
     "chat": """You are a helpful assistant for a visually impaired person.
 Answer their question naturally and concisely.
