@@ -15,7 +15,7 @@ Usage:
     python main.py
 
 Voice Commands:
-    "Hi Siri" - Activate the system
+    "Hello Vision" - Activate the system
     "Guide me" - Start navigation mode
     "Stop guidance" - Pause navigation
     "Read text" - Read visible text (OCR)
@@ -282,7 +282,7 @@ class SmartVisionGuide:
             print(f"Voice recognition not available: {e}")
             speak("Voice recognition failed. Check microphone.")
         
-        print("\nSystem ready! Say 'Hi Siri' to activate.")
+        print("\nSystem ready! Say 'Hello Vision' to activate.")
         print("-" * 50)
         
         try:

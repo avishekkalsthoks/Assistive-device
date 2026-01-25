@@ -50,7 +50,7 @@ Raspberry Pi Zero 2W GPIO:
 
 | Command | Action |
 |---------|--------|
-| **"Hi Siri"** | Activate the system |
+| **"Hello Vision"** | Activate the system |
 | **"Guide me"** | Start navigation mode |
 | **"Stop guidance"** | Pause navigation |
 | **"Read text"** | Read visible text (OCR) |
@@ -86,7 +86,7 @@ python main.py
 ## System Architecture
 
 The project is designed as a **Voice-First** interface:
-1. **User speaks** command ("Guide me")
+1. **User speaks** command ("Hello Vision")
 2. **Pi Zero** captures image and sends to **Gemini API**
 3. **Gemini** analyzes image (obstacles, text, etc.) and returns text
 4. **Pi Zero** converts text to speech and plays audio

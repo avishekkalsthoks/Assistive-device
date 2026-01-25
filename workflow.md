@@ -23,7 +23,7 @@ High-level Data Flow (Molecular)
   - `VoiceHandler` runs a background listening loop, records audio segments, uses Google STT to transcribe, then `parse_command()` matches phrases in `COMMANDS` and calls `SmartVisionGuide.handle_voice_command(command_type, transcript)`.
 
 - Activation gating
-  - Wake word (`"hi siri"`) toggles `system_active`; other commands are ignored until activation.
+  - Wake word (`"hello vision"`) toggles `system_active`; other commands are ignored until activation.
 
 - Modes
   - Guidance: `start_guidance()` spawns `_guidance_loop()` that repeatedly captures frames, calls `GeminiHandler.get_navigation_guidance(frame)`, and speaks concise navigation advice. The loop respects `CAPTURE_INTERVAL` and checks events for quick stop.

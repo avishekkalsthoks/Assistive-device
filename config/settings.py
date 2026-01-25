@@ -42,9 +42,9 @@ SPEECH_RATE = 1.0  # TTS speech rate
 # =============================================================================
 # VOICE COMMANDS
 # =============================================================================
-WAKE_WORD = "hi siri"
+WAKE_WORD = "hello vision"
 COMMANDS = {
-    "activate": ["hi siri", "hey assistant", "hello"],
+    "activate": ["hello vision", "hey assistant", "hello"],
     "guide": ["guide me", "start guidance", "navigate", "help me walk"],
     "stop_guide": ["stop guidance", "stop guiding", "pause"],
     "read_text": ["read text", "read this", "what does it say", "ocr"],
@@ -99,7 +99,7 @@ AUDIO_TEMP_FILE = "/tmp/tts_output.mp3"
 # SYSTEM MESSAGES
 # =============================================================================
 MESSAGES = {
-    "startup": "Smart Vision Guide ready. Say 'Hi Siri' to begin.",
+    "startup": "Smart Vision Guide ready. Say 'Hello Vision' to begin.",
     "activated": "System activated. Say 'guide me' for navigation, or 'describe' for scene description.",
     "guidance_start": "Guidance mode started. I'll help you navigate.",
     "guidance_stop": "Guidance paused.",
