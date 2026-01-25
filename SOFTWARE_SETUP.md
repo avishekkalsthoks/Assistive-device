@@ -105,7 +105,42 @@ pip install -r requirements.txt
 
 ---
 
-## 6. Running the Application
+## 6. Bluetooth Audio Setup (Optional)
+
+If you are using Bluetooth earphones, follow these steps to pair and connect them.
+
+1.  **Install Bluetooth modules**:
+    ```bash
+    sudo apt-get install -y pulseaudio-module-bluetooth bluez
+    ```
+
+2.  **Pair your device**:
+    Run the Bluetooth control tool:
+    ```bash
+    sudo bluetoothctl
+    ```
+    Inside the `bluetoothctl` prompt, type these commands:
+    ```text
+    power on
+    agent on
+    default-agent
+    scan on
+    # Wait for your earphones to appear (e.g., AA:BB:CC:11:22:33 Earphones)
+    pair AA:BB:CC:11:22:33
+    trust AA:BB:CC:11:22:33
+    connect AA:BB:CC:11:22:33
+    exit
+    ```
+
+3.  **Set as Default Output**:
+    Buster uses PulseAudio for Bluetooth. You can ensure audio routes to the headset using:
+    ```bash
+    pacmd set-default-sink 1
+    ```
+
+---
+
+## 7. Running the Application
 
 Always ensure your virtual environment is active before running:
 
@@ -124,7 +159,7 @@ python main.py
 
 ---
 
-## 7. Troubleshooting (Buster & Rev 1.3 Camera)
+## 8. Troubleshooting (Buster & Rev 1.3 Camera)
 
 *   **Camera Not Detected**: 
     Run `vcgencmd get_camera`. It should return `supported=1 detected=1`. If `detected=0`, check the ribbon cable seating (metal pins face the HDMI port on Pi Zero).
@@ -138,7 +173,7 @@ python main.py
 
 ---
 
-## 8. Auto-Start on Boot (Optional)
+## 9. Auto-Start on Boot (Optional)
 
 To run the guide automatically whenever the Pi starts:
 
