@@ -59,7 +59,7 @@ Clone the repository and set up the Python environment.
 
 ```bash
 # Clone the repository
-git clone https://github.com/aviks/Assistive-device.git Smart-Vision-Guide
+git clone https://github.com/avishekkalsthoks/Assistive-device.git Smart-Vision-Guide
 cd Smart-Vision-Guide
 
 # Create a virtual environment
