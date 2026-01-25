@@ -2,7 +2,7 @@
 """
 Smart Vision Guide - Main Application
 Assistive Device for Visually Impaired People
-Optimized for Raspberry Pi Zero 2W with Google AI Studio (Gemini API)
+Optimized for Raspberry Pi Zero 2W with OpenRouter API
 
 Features:
 - Object Detection for navigation assistance
@@ -37,7 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config.settings import MESSAGES, CAPTURE_INTERVAL
 from handlers.audio_handler import get_audio_handler, speak
 from handlers.camera_handler import get_camera_handler
-from handlers.gemini_handler import get_gemini_handler
+from handlers.gemini_handler import get_vision_handler
 from handlers.voice_handler import get_voice_handler
 
 
@@ -67,7 +67,7 @@ class SmartVisionGuide:
         # Initialize handlers
         self.audio = get_audio_handler()
         self.camera = get_camera_handler()
-        self.gemini = get_gemini_handler()
+        self.vision = get_vision_handler()
         self.voice = get_voice_handler()
 
         
@@ -106,7 +106,7 @@ class SmartVisionGuide:
         
         # Check OpenRouter
         print("  [3/3] Checking OpenRouter API...")
-        if self.gemini.initialized:
+        if self.vision.initialized:
             print("        OpenRouter API OK")
         else:
             print("        OpenRouter API FAILED - check API key")
@@ -194,8 +194,8 @@ class SmartVisionGuide:
             frame = self.camera.capture_frame()
             
             if frame is not None:
-                # Get navigation guidance from Gemini
-                result = self.gemini.get_navigation_guidance(frame)
+                # Get navigation guidance from OpenRouter
+                result = self.vision.get_navigation_guidance(frame)
                 
                 # Skip generic responses
                 if result and "no obstacle" not in result.lower():
@@ -224,7 +224,7 @@ class SmartVisionGuide:
         frame = self.camera.capture_frame()
         
         if frame is not None:
-            result = self.gemini.read_text(frame)
+            result = self.vision.read_text(frame)
             print(f"OCR: {result}")
             speak(result)
         else:
@@ -237,7 +237,7 @@ class SmartVisionGuide:
         frame = self.camera.capture_frame()
         
         if frame is not None:
-            result = self.gemini.describe_scene(frame)
+            result = self.vision.describe_scene(frame)
             print(f"Scene: {result}")
             speak(result)
         else:
@@ -260,7 +260,7 @@ class SmartVisionGuide:
         # Optionally capture context image
         frame = self.camera.capture_frame()
         
-        result = self.gemini.chat(text, context_frame=frame)
+        result = self.vision.chat(text, context_frame=frame)
         print(f"Chat response: {result}")
         speak(result)
     

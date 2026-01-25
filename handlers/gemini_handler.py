@@ -9,7 +9,7 @@ import base64
 import cv2
 from config.settings import OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENROUTER_URL, PROMPTS, JPEG_QUALITY
 
-class GeminiHandler:
+class VisionHandler:
     """Handles vision API interactions via OpenRouter."""
     
     def __init__(self):
@@ -143,10 +143,10 @@ class GeminiHandler:
         return self.analyze_image(frame, "describe")
 
 # Singleton instance
-_gemini_handler = None
+_vision_handler = None
 
-def get_gemini_handler():
-    global _gemini_handler
-    if _gemini_handler is None:
-        _gemini_handler = GeminiHandler()
-    return _gemini_handler
+def get_vision_handler():
+    global _vision_handler
+    if _vision_handler is None:
+        _vision_handler = VisionHandler()
+    return _vision_handler

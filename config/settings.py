@@ -10,13 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # =============================================================================
-# GEMINI API CONFIGURATION
+# VISION API CONFIGURATION (OpenRouter)
 # =============================================================================
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "your-api-key-here")
-GEMINI_MODEL = "gemini-2.0-flash"  # Fast and cost-effective model
-
-# =============================================================================
-# OpenRouter (replacement for Gemini in this project)
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "your-openrouter-api-key-here")
 OPENROUTER_URL = os.environ.get("OPENROUTER_URL", "https://openrouter.ai/api/v1/chat/completions")
 OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "google/gemma-3-4b-it:free")
