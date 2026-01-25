@@ -1,27 +1,28 @@
 """
-Gemini API Handler for Smart Vision Guide
-Version: 2.0 (Lightweight HTTP implementation for Python 3.7+)
+Vision Handler for Smart Vision Guide
+Version: 3.0 (OpenRouter HTTP implementation)
 """
 
 import requests
 import json
 import base64
 import cv2
-from config.settings import GEMINI_API_KEY, GEMINI_MODEL, PROMPTS, JPEG_QUALITY
+from config.settings import OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENROUTER_URL, PROMPTS, JPEG_QUALITY
 
 class GeminiHandler:
-    """Handles all Gemini API interactions via direct HTTP requests."""
+    """Handles vision API interactions via OpenRouter."""
     
     def __init__(self):
-        """Initialize the Gemini handler."""
-        self.api_key = GEMINI_API_KEY
-        self.model = GEMINI_MODEL
-        self.initialized = True if self.api_key and self.api_key != "your-api-key-here" else False
+        """Initialize the handler."""
+        self.api_key = OPENROUTER_API_KEY
+        self.url = OPENROUTER_URL
+        self.model = OPENROUTER_MODEL
+        self.initialized = True if self.api_key and "your-openrouter" not in self.api_key else False
         
         if self.initialized:
-            print(f"Gemini Handler (HTTP) initialized with model: {self.model}")
+            print(f"OpenRouter Handler initialized with model: {self.model}")
         else:
-            print("Warning: Gemini API Key missing or invalid.")
+            print("Warning: OpenRouter API Key missing or invalid.")
 
     def _encode_frame(self, frame):
         """Encode a frame as JPEG bytes then Base64 string."""
@@ -34,7 +35,7 @@ class GeminiHandler:
             return None
 
     def analyze_image(self, frame, mode="navigation"):
-        """Analyze an image using the Gemini REST API."""
+        """Analyze an image using the OpenRouter API."""
         if not self.initialized:
             return "Vision system not available. Please check API configuration."
         
@@ -47,64 +48,86 @@ class GeminiHandler:
         if not image_base64:
             return "Error processing image."
 
-        # Gemini API Endpoint
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://github.com/avishekkalsthoks/Smart-Vision-Guide",
+            "X-Title": "Smart Vision Guide",
+        }
         
         payload = {
-            "contents": [{
-                "parts": [
-                    {"text": prompt},
-                    {
-                        "inline_data": {
-                            "mime_type": "image/jpeg",
-                            "data": image_base64
+            "model": self.model,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": prompt
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_base64}"
+                            }
                         }
-                    }
-                ]
-            }]
+                    ]
+                }
+            ]
         }
 
         try:
-            response = requests.post(url, json=payload, timeout=30)
+            response = requests.post(self.url, headers=headers, data=json.dumps(payload), timeout=30)
             response.raise_for_status()
             data = response.json()
             
-            # Extract text from response
-            result = data['candidates'][0]['content']['parts'][0]['text'].strip()
+            # Extract text from OpenRouter response
+            result = data['choices'][0]['message']['content'].strip()
             
             # Clean formatting
             result = result.replace('*', '').replace('#', '').replace('`', '')
             return result
             
         except Exception as e:
-            print(f"Gemini API error: {e}")
-            return "Camera analyzed the scene, but I couldn't process the result. Check your connection."
+            print(f"OpenRouter API error: {e}")
+            if hasattr(e, 'response') and e.response is not None:
+                print(f"Response: {e.response.text}")
+            return "I couldn't reach the vision server. Please check your connection."
 
     def chat(self, user_message, context_frame=None):
-        """Handle a chat conversation via REST API."""
+        """Handle a chat conversation via OpenRouter."""
         if not self.initialized:
             return "Chat system not available."
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
-        parts = [{"text": f"{PROMPTS['chat']}\n\nUser says: {user_message}"}]
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://github.com/avishekkalsthoks/Smart-Vision-Guide",
+            "X-Title": "Smart Vision Guide",
+        }
+        
+        content = [{"type": "text", "text": f"{PROMPTS['chat']}\n\nUser says: {user_message}"}]
         
         if context_frame is not None:
             image_base64 = self._encode_frame(context_frame)
             if image_base64:
-                parts.append({
-                    "inline_data": {
-                        "mime_type": "image/jpeg",
-                        "data": image_base64
+                content.append({
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{image_base64}"
                     }
                 })
 
-        payload = {"contents": [{"parts": parts}]}
+        payload = {
+            "model": self.model,
+            "messages": [{"role": "user", "content": content}]
+        }
 
         try:
-            response = requests.post(url, json=payload, timeout=30)
+            response = requests.post(self.url, headers=headers, data=json.dumps(payload), timeout=30)
             response.raise_for_status()
             data = response.json()
-            result = data['candidates'][0]['content']['parts'][0]['text'].strip()
+            result = data['choices'][0]['message']['content'].strip()
             return result.replace('*', '').replace('#', '').replace('`', '')
         except Exception as e:
             print(f"Chat error: {e}")

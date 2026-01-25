@@ -104,12 +104,12 @@ class SmartVisionGuide:
         else:
             print("        Microphone FAILED - checking connection")
         
-        # Check Gemini
-        print("  [3/3] Checking Gemini API...")
+        # Check OpenRouter
+        print("  [3/3] Checking OpenRouter API...")
         if self.gemini.initialized:
-            print("        Gemini API OK")
+            print("        OpenRouter API OK")
         else:
-            print("        Gemini API FAILED - check API key")
+            print("        OpenRouter API FAILED - check API key")
         
         print("\nInitialization complete!")
         print("-" * 50)

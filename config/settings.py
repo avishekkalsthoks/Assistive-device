@@ -1,6 +1,6 @@
 """
 Configuration Settings for Smart Vision Guide
-Raspberry Pi Zero 2W with Google AI Studio (Gemini API)
+Raspberry Pi Zero 2W with OpenRouter API
 """
 
 import os
